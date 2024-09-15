@@ -1,0 +1,3 @@
+.ft-hover-element {
+    @apply hover:bg-[#eff5fb] transition-colors duration-75 cursor-pointer rounded-md border border-transparent hover:border-[#eff5fb] hover:shadow-sm;
+}

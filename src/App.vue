@@ -39,23 +39,45 @@ function applyFolderStatus(tree: FileTreeElement, path: string[], status: FileTr
     <h1>Welcome to Tauri!</h1>
 
     <div class="row">
-      <a href="https://vitejs.dev" target="_blank">
-        <img src="/vite.svg" class="logo vite" alt="Vite logo" />
+      <a
+        href="https://vitejs.dev"
+        target="_blank"
+      >
+        <img
+          src="/vite.svg"
+          class="logo vite"
+          alt="Vite logo"
+        >
       </a>
-      <a href="https://tauri.app" target="_blank">
-        <img src="/tauri.svg" class="logo tauri" alt="Tauri logo" />
+      <a
+        href="https://tauri.app"
+        target="_blank"
+      >
+        <img
+          src="/tauri.svg"
+          class="logo tauri"
+          alt="Tauri logo"
+        >
       </a>
-      <a href="https://vuejs.org/" target="_blank">
-        <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
+      <a
+        href="https://vuejs.org/"
+        target="_blank"
+      >
+        <img
+          src="./assets/vue.svg"
+          class="logo vue"
+          alt="Vue logo"
+        >
       </a>
     </div>
 
     <p>Click on the Tauri, Vite, and Vue logos to learn more.</p>
     <div class="flex justify-center">
       <FileTree 
-         @toggle-folder="toggleFolder"
-         class="w-full"
-        :file-tree="data"></FileTree>
+        class="w-full"
+        :file-tree="data"
+        @toggle-folder="toggleFolder"
+      />
     </div>
   </div>
 </template>

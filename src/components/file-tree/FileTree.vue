@@ -22,18 +22,19 @@ function reportFolderToggle(
 <template>
   <div class="bg-[#e5edf8] border-md backdrop-blur-md p-2 text-left whitespace-nowrap">
     <div 
-      v-for="section in fileTree" :key="section.name"
+      v-for="section in fileTree"
+      :key="section.name"
       class="pl-3"
     >
-    {{ section.name }}
+      {{ section.name }}
     
-    <FileTreeItem
-      v-for="element in section.children" 
-      @toggle-folder="(folder, status) => reportFolderToggle(folder, status, section.name)"
-      :key="element.name"
-      :level="1"
-      :element="element"
-    ></FileTreeItem>
+      <FileTreeItem
+        v-for="element in section.children" 
+        :key="element.name"
+        :level="1"
+        :element="element"
+        @toggle-folder="(folder, status) => reportFolderToggle(folder, status, section.name)"
+      />
     </div>
   </div>
 </template>

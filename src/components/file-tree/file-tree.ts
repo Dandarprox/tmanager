@@ -1,3 +1,4 @@
+
 export type FileTreeType = 'file' | 'folder';
 export type FileTreeCollapsableStatus = 'open' | 'closed';
 
@@ -22,6 +23,13 @@ export type FileTreeSection = {
 }
 
 export type FileTree = FileTreeSection[];
+
+export enum FileTreeElementAction {
+    Toggle = 'toggle',
+    Open = 'open',
+    Close = 'close',
+    Select = 'select',
+}
 
 export const FolderSeparatorChar = '/';
 

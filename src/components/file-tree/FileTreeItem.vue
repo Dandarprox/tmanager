@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { faFolder, faFile, faFileWord, faFileText, faFileExcel } from '@fortawesome/free-solid-svg-icons';
 import { fork } from 'radash';
 import { computed, ref, watchEffect } from 'vue';
-import { FileTreeCollapsableStatus, FileTreeFile, FileTreeFolder, FolderSeparatorChar, type FileTreeElement } from './file-tree';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { FileTreeCollapsableStatus, FileTreeElement, FileTreeFile, FileTreeFolder, FolderSeparatorChar } from './file-tree';
+import FileTreeFolderElement from './FileTreeFolderElement.vue';
+import FileTreeFileElement from './FileTreeFileElement.vue';
 
 const emit = defineEmits<{
   (event: 'toggleFolder', folderPath: string, status: FileTreeCollapsableStatus): void;
@@ -16,26 +16,10 @@ const props = defineProps<{
 const folders = ref<FileTreeFolder[]>([]);
 const files = ref<FileTreeFile[]>([]);
 
-const extensionMapping = {
-  'doc': faFileWord,
-  'docx': faFileWord,
-  'pdf': faFileWord,
-  'txt': faFileText,
-  'xlsx': faFileExcel,
-  '_file': faFile,
-}
 const isParentElementOpen = computed(
   () => props.element.type === 'folder' && props.element.status === 'open'
 );
 
-function getIconForFile<
-  Key extends keyof typeof extensionMapping = keyof typeof extensionMapping
->(file: FileTreeFile): (typeof extensionMapping)[Key] {
-  const extension  = file.name.split('.').pop() as Key;
-  const icon = extensionMapping[extension];
-
-  return icon || faFile;
-}
 
 function reportCurrentFolder(
   parentFolder: string,
@@ -64,40 +48,66 @@ watchEffect(() => {
 
 <template>
   <div :style="{ paddingLeft: `${level * 10}px` }">
-    <div 
-      @click="emit(
-        'toggleFolder',
-        element.name,
-        element.type === 'folder' && element.status === 'open' ? 'closed' : 'open'
-      )"
-      class="py-1 pl-1 ft-hover-element">
-      <FontAwesomeIcon :icon="faFolder" color="#fddb7d"/>
-      {{ element.name }}
-    </div>
+    <slot
+      name="folder"
+      :element="element"
+    >
+      <FileTreeFolderElement 
+        :element="element"
+        @click="emit(
+          'toggleFolder',
+          element.name,
+          element.type === 'folder' && element.status === 'open' ? 'closed' : 'open'
+        )"
+      />
+    </slot>
     
+    <TransitionGroup name="list">
       <!-- Folders -->
       <FileTreeItem
-        v-for="folder in folders" :key="folder.name"
+        v-for="(folder, index) in folders"
         v-show="isParentElementOpen"
-        @toggle-folder="(childFolder, status) => reportCurrentFolder(element.name, childFolder, status)"
+        :key="folder.name"
+        :data-index="index"
         :level="level + 1"
         :element="folder"
-      ></FileTreeItem>
+        @toggle-folder="(childFolder, status) => reportCurrentFolder(element.name, childFolder, status)"
+      />
       
       <!-- Files -->
-      <div 
-        v-for="file in files" :key="file.name" 
-        v-show="isParentElementOpen"
-        class="pl-[10px] text-ellipsis overflow-hidden py-1 ft-hover-element"
+      <div
+        v-for="(file, index) in files"
+        v-show="isParentElementOpen" 
+        :key="file.name"
       >
-        <FontAwesomeIcon :icon="getIconForFile(file)"/>
-        {{ file.name }}
+        <FileTreeFileElement 
+          :element="file"
+        >
+          <slot
+            name="file"
+            :element="file"
+            :index="index"
+          />
+        </FileTreeFileElement>
       </div>
+    </TransitionGroup>
   </div>
 </template>
 
 <style scoped>
-  .ft-hover-element {
-    @apply hover:bg-[#eff5fb] transition-colors duration-150 cursor-pointer rounded-md border border-transparent hover:border-[#eff5fb];
-  }
+@import './styles/index.css';
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.3s ease;
+}
+
+.list-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.list-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
 </style>
