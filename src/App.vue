@@ -11,16 +11,16 @@ function toggleFolder(folder: string, status: FileTreeCollapsableStatus, section
   const currentSection = data.value.find((element) => element.name === section);
   
   currentSection?.children.forEach((children) => {
-    applyFolderStatus(children, path, status, 0);
+    applyFolderStatus(children, path, status);
   });
 }
 
-function applyFolderStatus(tree: FileTreeElement, path: string[], status: FileTreeCollapsableStatus,  currentIndex: number) {
+function applyFolderStatus(tree: FileTreeElement, path: string[], status: FileTreeCollapsableStatus,  currentIndex = 0) {
   if (tree.type !== 'folder') {
     return;
   }
   
-  if (currentIndex === path.length - 1) {
+  if (currentIndex === path.length - 1 && tree.name === path[currentIndex]) {
     tree.status = status;
     
     return;

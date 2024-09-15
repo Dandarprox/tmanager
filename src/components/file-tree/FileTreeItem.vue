@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { faFolder, faFile, faFileWord, faFileText, faFileExcel } from '@fortawesome/free-solid-svg-icons';
 import { fork } from 'radash';
-import { ref, watchEffect } from 'vue';
+import { computed, ref, watchEffect } from 'vue';
 import { FileTreeCollapsableStatus, FileTreeFile, FileTreeFolder, FolderSeparatorChar, type FileTreeElement } from './file-tree';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
@@ -24,6 +24,9 @@ const extensionMapping = {
   'xlsx': faFileExcel,
   '_file': faFile,
 }
+const isParentElementOpen = computed(
+  () => props.element.type === 'folder' && props.element.status === 'open'
+);
 
 function getIconForFile<
   Key extends keyof typeof extensionMapping = keyof typeof extensionMapping
@@ -61,21 +64,21 @@ watchEffect(() => {
 
 <template>
   <div :style="{ paddingLeft: `${level * 10}px` }">
-    <span 
+    <div 
       @click="emit(
         'toggleFolder',
         element.name,
         element.type === 'folder' && element.status === 'open' ? 'closed' : 'open'
       )"
-      class="inline-block py-1 pl-1">
+      class="py-1 pl-1 ft-hover-element">
       <FontAwesomeIcon :icon="faFolder" color="#fddb7d"/>
       {{ element.name }}
-    </span>
+    </div>
     
       <!-- Folders -->
       <FileTreeItem
         v-for="folder in folders" :key="folder.name"
-        v-show="folder.status === 'open'"
+        v-show="isParentElementOpen"
         @toggle-folder="(childFolder, status) => reportCurrentFolder(element.name, childFolder, status)"
         :level="level + 1"
         :element="folder"
@@ -84,10 +87,17 @@ watchEffect(() => {
       <!-- Files -->
       <div 
         v-for="file in files" :key="file.name" 
-        class="pl-[10px] text-ellipsis overflow-hidden py-1"
+        v-show="isParentElementOpen"
+        class="pl-[10px] text-ellipsis overflow-hidden py-1 ft-hover-element"
       >
         <FontAwesomeIcon :icon="getIconForFile(file)"/>
         {{ file.name }}
       </div>
   </div>
 </template>
+
+<style scoped>
+  .ft-hover-element {
+    @apply hover:bg-[#eff5fb] transition-colors duration-150 cursor-pointer rounded-md border border-transparent hover:border-[#eff5fb];
+  }
+</style>

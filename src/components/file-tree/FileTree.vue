@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { FileTree, FileTreeCollapsableStatus, FileTreeElement, FolderSeparatorChar } from './file-tree';
+import { FileTree, FileTreeCollapsableStatus } from './file-tree';
 import FileTreeItem from './FileTreeItem.vue';
 
 const emits = defineEmits<{
   (event: 'toggle-folder', folder: string, status: FileTreeCollapsableStatus, section: string): void;
 }>();
-const props = defineProps<{
+defineProps<{
   fileTree: FileTree;
 }>();
 
