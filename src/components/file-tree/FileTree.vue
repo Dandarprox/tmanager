@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { FileTree, FileTreeCollapsableStatus } from './file-tree';
+import { FileTree, FileTreeCollapsableStatus, FileTreeFile, FileTreeFolder } from './file-tree';
 import FileTreeItem from './FileTreeItem.vue';
 
 const emits = defineEmits<{
@@ -34,7 +34,21 @@ function reportFolderToggle(
         :level="1"
         :element="element"
         @toggle-folder="(folder, status) => reportFolderToggle(folder, status, section.name)"
-      />
+      >
+        <template #folder="{ element: folderElement }">
+          <slot
+            name="folder"
+            :element="(folderElement as FileTreeFolder)"
+          />
+        </template>
+
+        <template #file="{ element: fileElement }">
+          <slot
+            name="file"
+            :element="(fileElement as FileTreeFile)"
+          />
+        </template>
+      </FileTreeItem>
     </div>
   </div>
 </template>

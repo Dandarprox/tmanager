@@ -72,12 +72,25 @@ function applyFolderStatus(tree: FileTreeElement, path: string[], status: FileTr
     </div>
 
     <p>Click on the Tauri, Vite, and Vue logos to learn more.</p>
+
     <div class="flex justify-center">
       <FileTree 
         class="w-full"
         :file-tree="data"
         @toggle-folder="toggleFolder"
-      />
+      >
+        <template #folder="{element}">
+          <div>
+            > <span>{{ element.name }}</span>
+          </div>
+        </template>
+
+        <template #file="{element}">
+          <div class="bg-green-400">
+            + <span>{{ element.name }}</span>
+          </div>
+        </template>
+      </FileTree>
     </div>
   </div>
 </template>

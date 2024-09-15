@@ -48,19 +48,21 @@ watchEffect(() => {
 
 <template>
   <div :style="{ paddingLeft: `${level * 10}px` }">
-    <slot
-      name="folder"
+    <FileTreeFolderElement 
       :element="element"
+      @click="emit(
+        'toggleFolder',
+        element.name,
+        element.type === 'folder' && element.status === 'open' ? 'closed' : 'open'
+      )"
     >
-      <FileTreeFolderElement 
-        :element="element"
-        @click="emit(
-          'toggleFolder',
-          element.name,
-          element.type === 'folder' && element.status === 'open' ? 'closed' : 'open'
-        )"
-      />
-    </slot>
+      <template #default="{ element: folderElement }">
+        <slot 
+          name="folder"
+          :element="(folderElement as FileTreeFolder)" 
+        />
+      </template>
+    </FileTreeFolderElement>
     
     <TransitionGroup name="list">
       <!-- Folders -->
@@ -72,7 +74,21 @@ watchEffect(() => {
         :level="level + 1"
         :element="folder"
         @toggle-folder="(childFolder, status) => reportCurrentFolder(element.name, childFolder, status)"
-      />
+      >
+        <template #folder="{ element: folderElement }">
+          <slot
+            name="folder"
+            :element="folderElement"
+          />
+        </template>
+        
+        <template #file="{ element: fileElement }">
+          <slot
+            name="file"
+            :element="fileElement"
+          />
+        </template>
+      </FileTreeItem>
       
       <!-- Files -->
       <div
