@@ -30,7 +30,7 @@ export enum FileTreeElementAction {
     Close = 'close',
     Select = 'select',
 }
-
+    
 export const FolderSeparatorChar = '/';
 
 export const fileTreeSample: FileTree = [

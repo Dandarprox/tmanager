@@ -33,19 +33,22 @@ function reportFolderToggle(
         :key="element.name"
         :level="1"
         :element="element"
+        :path="[section.name]"
         @toggle-folder="(folder, status) => reportFolderToggle(folder, status, section.name)"
       >
-        <template #folder="{ element: folderElement }">
+        <template #folder="{ element: folderElement, path }">
           <slot
             name="folder"
             :element="(folderElement as FileTreeFolder)"
+            :path="path"
           />
         </template>
 
-        <template #file="{ element: fileElement }">
+        <template #file="{ element: fileElement, path }">
           <slot
             name="file"
             :element="(fileElement as FileTreeFile)"
+            :path="path"
           />
         </template>
       </FileTreeItem>

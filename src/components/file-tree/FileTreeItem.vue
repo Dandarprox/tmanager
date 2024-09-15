@@ -11,6 +11,7 @@ const emit = defineEmits<{
 const props = defineProps<{
   level: number;
   element: FileTreeElement;
+  path?: string[];
 }>();
 
 const folders = ref<FileTreeFolder[]>([]);
@@ -60,6 +61,7 @@ watchEffect(() => {
         <slot 
           name="folder"
           :element="(folderElement as FileTreeFolder)" 
+          :path="[...(path || []), folderElement.name]"
         />
       </template>
     </FileTreeFolderElement>
@@ -73,19 +75,22 @@ watchEffect(() => {
         :data-index="index"
         :level="level + 1"
         :element="folder"
+        :path="[...(path || []), element.name,folder.name]"
         @toggle-folder="(childFolder, status) => reportCurrentFolder(element.name, childFolder, status)"
       >
-        <template #folder="{ element: folderElement }">
+        <template #folder="{ element: folderElement, path: innerPath }">
           <slot
             name="folder"
             :element="folderElement"
+            :path="[...(innerPath || []), folderElement.name]"
           />
         </template>
         
-        <template #file="{ element: fileElement }">
+        <template #file="{ element: fileElement, path: innerPath }">
           <slot
             name="file"
             :element="fileElement"
+            :path="innerPath || []"
           />
         </template>
       </FileTreeItem>
@@ -102,6 +107,7 @@ watchEffect(() => {
           <slot
             name="file"
             :element="file"
+            :path="[...(path || []), file.name]"
             :index="index"
           />
         </FileTreeFileElement>

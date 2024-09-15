@@ -79,15 +79,15 @@ function applyFolderStatus(tree: FileTreeElement, path: string[], status: FileTr
         :file-tree="data"
         @toggle-folder="toggleFolder"
       >
-        <template #folder="{element}">
+        <template #folder="{element, path}">
           <div>
-            > <span>{{ element.name }}</span>
+            > <span>{{ element.name }}</span> ({{ path.join('/') }})
           </div>
         </template>
 
-        <template #file="{element}">
+        <template #file="{element, path}">
           <div class="bg-green-400">
-            + <span>{{ element.name }}</span>
+            + <span>{{ element.name }}</span> ({{ path.join('/') }})
           </div>
         </template>
       </FileTree>
