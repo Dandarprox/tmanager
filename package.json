@@ -1,0 +1,32 @@
+{
+  "name": "tmanager",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.6.0",
+    "@fortawesome/free-solid-svg-icons": "^6.6.0",
+    "@fortawesome/vue-fontawesome": "^3.0.8",
+    "@tauri-apps/api": "^1",
+    "devextreme": "24.1",
+    "devextreme-vue": "24.1",
+    "radash": "^12.1.0",
+    "vue": "^3.3.4"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^1",
+    "@vitejs/plugin-vue": "^5.0.5",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.11",
+    "typescript": "^5.2.2",
+    "vite": "^5.3.1",
+    "vue-tsc": "^2.0.22"
+  }
+}
