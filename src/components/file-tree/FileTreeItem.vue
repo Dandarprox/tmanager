@@ -7,20 +7,26 @@ import FileTreeFileElement from './FileTreeFileElement.vue';
 
 const emit = defineEmits<{
   (event: 'toggleFolder', folderPath: string, status: FileTreeCollapsableStatus): void;
+  (event: 'toggleSubtree'): void;
 }>();
 const props = defineProps<{
   level: number;
   element: FileTreeElement;
-  path?: string[];
+  path?: string;
 }>();
 
 const folders = ref<FileTreeFolder[]>([]);
 const files = ref<FileTreeFile[]>([]);
+const hideSubTree = ref(false);
+
+function toggleSubtree() {
+  hideSubTree.value = !hideSubTree.value;
+  emit('toggleSubtree');
+}
 
 const isParentElementOpen = computed(
   () => props.element.type === 'folder' && props.element.status === 'open'
 );
-
 
 function reportCurrentFolder(
   parentFolder: string,
@@ -48,7 +54,10 @@ watchEffect(() => {
 </script>
 
 <template>
-  <div :style="{ paddingLeft: `${level * 10}px` }">
+  <div 
+    v-show="!hideSubTree"
+    :style="{ paddingLeft: `${level * 10}px` }"
+  >
     <FileTreeFolderElement 
       :element="element"
       @click="emit(
@@ -61,7 +70,8 @@ watchEffect(() => {
         <slot 
           name="folder"
           :element="(folderElement as FileTreeFolder)" 
-          :path="[...(path || []), folderElement.name]"
+          :path="`${path || ''}${FolderSeparatorChar}${folderElement.name}`"
+          :toggle-subtree="toggleSubtree"
         />
       </template>
     </FileTreeFolderElement>
@@ -75,14 +85,15 @@ watchEffect(() => {
         :data-index="index"
         :level="level + 1"
         :element="folder"
-        :path="[...(path || []), element.name,folder.name]"
+        :path="`${path || ''}${FolderSeparatorChar}${element.name}${FolderSeparatorChar}${folder.name}`"
         @toggle-folder="(childFolder, status) => reportCurrentFolder(element.name, childFolder, status)"
       >
         <template #folder="{ element: folderElement, path: innerPath }">
           <slot
             name="folder"
             :element="folderElement"
-            :path="[...(innerPath || []), folderElement.name]"
+            :path="`${innerPath || ''}${FolderSeparatorChar}${folderElement.name}`"
+            :toggle-subtree="toggleSubtree"
           />
         </template>
         
@@ -90,7 +101,7 @@ watchEffect(() => {
           <slot
             name="file"
             :element="fileElement"
-            :path="innerPath || []"
+            :path="`${innerPath || ''}`"
           />
         </template>
       </FileTreeItem>
@@ -107,7 +118,7 @@ watchEffect(() => {
           <slot
             name="file"
             :element="file"
-            :path="[...(path || []), file.name]"
+            :path="`${path || ''}${FolderSeparatorChar}${file.name}`"
             :index="index"
           />
         </FileTreeFileElement>

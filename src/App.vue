@@ -1,12 +1,31 @@
+<!-- eslint-disable @typescript-eslint/no-unused-expressions -->
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { FileTreeCollapsableStatus, FileTreeElement, fileTreeSample, FolderSeparatorChar } from './components/file-tree/file-tree';
 import FileTree from './components/file-tree/FileTree.vue';
 
 const data = ref(fileTreeSample);
-// This starter template is using Vue 3 <script setup> SFCs
-// Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
+const toggleFolders = ref(false);
+const hideUnmarkedFolders = ref(false);
+
+watch(() => hideUnmarkedFolders.value, (value) => {
+  if (!value) {
+    return;
+  }
+
+  Object.entries(markedFolders.value).forEach(([, { marked, toggleSubtree }]) => {
+    if (!marked) {
+      console.log('toggling off subtree')
+      toggleSubtree();
+    }
+  });
+});
+
 function toggleFolder(folder: string, status: FileTreeCollapsableStatus, section: string) {
+  if (!toggleFolders.value) {
+    return;
+  }
+
   const path = folder.split(FolderSeparatorChar);
   const currentSection = data.value.find((element) => element.name === section);
   
@@ -32,46 +51,42 @@ function applyFolderStatus(tree: FileTreeElement, path: string[], status: FileTr
     });
   }
 }
+
+const markedFiles = ref<Record<string, boolean>>({});
+const markedFolders = ref<Record<string, { marked: boolean; toggleSubtree: () => void; }>>({});
+
+function markFileTreeElement(element: FileTreeElement, path: string, toggleSubtree?: () => void) {
+  if (element.type === 'folder') {
+    console.log({toggleSubtree})
+    markedFolders.value[path] ??= {
+      marked: false,
+      toggleSubtree: toggleSubtree!,
+    };
+    markedFolders.value[path].marked = !markedFolders.value[path].marked;
+    
+    return;
+  } 
+
+  markedFiles.value[path] ??= false;
+  markedFiles.value[path] = !markedFiles.value[path];
+}
 </script>
 
 <template>
   <div class="container">
-    <h1>Welcome to Tauri!</h1>
-
-    <div class="row">
-      <a
-        href="https://vitejs.dev"
-        target="_blank"
-      >
-        <img
-          src="/vite.svg"
-          class="logo vite"
-          alt="Vite logo"
-        >
-      </a>
-      <a
-        href="https://tauri.app"
-        target="_blank"
-      >
-        <img
-          src="/tauri.svg"
-          class="logo tauri"
-          alt="Tauri logo"
-        >
-      </a>
-      <a
-        href="https://vuejs.org/"
-        target="_blank"
-      >
-        <img
-          src="./assets/vue.svg"
-          class="logo vue"
-          alt="Vue logo"
-        >
-      </a>
-    </div>
-
-    <p>Click on the Tauri, Vite, and Vue logos to learn more.</p>
+    <button 
+      :class="toggleFolders ? 'bg-green-500' : 'bg-red-500'"
+      @click="toggleFolders = !toggleFolders"
+    >
+      Toggable folders
+    </button>
+      
+    <button
+      :class="hideUnmarkedFolders ? 'bg-green-500' : 'bg-red-500'"
+      @click="hideUnmarkedFolders = !hideUnmarkedFolders"
+    >
+      Hide unmarked folders
+    </button>
 
     <div class="flex justify-center">
       <FileTree 
@@ -79,15 +94,22 @@ function applyFolderStatus(tree: FileTreeElement, path: string[], status: FileTr
         :file-tree="data"
         @toggle-folder="toggleFolder"
       >
-        <template #folder="{element, path}">
-          <div>
-            > <span>{{ element.name }}</span> ({{ path.join('/') }})
+        <template #folder="{element, path, toggleSubTree}">
+          <div
+            v-show="hideUnmarkedFolders ? markedFolders[path] : true"
+            :class="{ 'bg-amber-400': markedFolders[path] }"
+            @click="markFileTreeElement(element, path, toggleSubTree)"
+          >
+            > <span>{{ element.name }}</span> ({{ path }})
           </div>
         </template>
 
         <template #file="{element, path}">
-          <div class="bg-green-400">
-            + <span>{{ element.name }}</span> ({{ path.join('/') }})
+          <div 
+            :class="{ 'bg-green-500': markedFiles[path] }"
+            @click="markFileTreeElement(element, path)"
+          >
+            + <span>{{ element.name }}</span> ({{ path }}) 
           </div>
         </template>
       </FileTree>
@@ -159,20 +181,6 @@ h1 {
   text-align: center;
 }
 
-input,
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  color: #0f0f0f;
-  background-color: #ffffff;
-  transition: border-color 0.25s;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
-}
-
 button {
   cursor: pointer;
 }
@@ -192,26 +200,6 @@ button {
 
 #greet-input {
   margin-right: 5px;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    color: #f6f6f6;
-    background-color: #2f2f2f;
-  }
-
-  a:hover {
-    color: #24c8db;
-  }
-
-  input,
-  button {
-    color: #ffffff;
-    background-color: #0f0f0f98;
-  }
-  button:active {
-    background-color: #0f0f0f69;
-  }
 }
 
 </style>

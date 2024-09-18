@@ -1,14 +1,16 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import { FileTree, FileTreeCollapsableStatus, FileTreeFile, FileTreeFolder } from './file-tree';
 import FileTreeItem from './FileTreeItem.vue';
 
+const showSubTree = ref(true);
 const emits = defineEmits<{
   (event: 'toggle-folder', folder: string, status: FileTreeCollapsableStatus, section: string): void;
 }>();
+
 defineProps<{
   fileTree: FileTree;
 }>();
-
 
 function reportFolderToggle(
   folder: string,
@@ -30,17 +32,20 @@ function reportFolderToggle(
     
       <FileTreeItem
         v-for="element in section.children" 
+        v-show="showSubTree"
         :key="element.name"
         :level="1"
         :element="element"
-        :path="[section.name]"
+        :path="section.name"
+        @toggle-subtree="showSubTree = !showSubTree"
         @toggle-folder="(folder, status) => reportFolderToggle(folder, status, section.name)"
       >
-        <template #folder="{ element: folderElement, path }">
+        <template #folder="{ element: folderElement, path, toggleSubtree }">
           <slot
             name="folder"
             :element="(folderElement as FileTreeFolder)"
             :path="path"
+            :toggle-sub-tree="toggleSubtree"
           />
         </template>
 
